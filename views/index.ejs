@@ -16,30 +16,15 @@
 			<input type="submit" value="Drop Task">
 		</form>
 		<h1>Retrieved </h1>
-		<!--<ul>%= data %</ul>-->
 		<% for(var i = 0; i < complete.length; i++){ %>
       		<li><%= complete[i] %> </li>
 		<% } %>	
 		<div id='todo_list'>
 			<ul>
-				<!--<li>task, X <button onClick=dropTask(task[i])></button></li>-->
 			</ul>
 		</div>
 		<script src="static/node_modules/jquery/dist/jquery.min.js">
 		<script src="static/services.js"></script>
-    
-	<script>
-		function dropTask() {
-			//var task = document.getElementByID('removeTask');
-			//console.log(task);
-			console.log("dropTask Called");
-	
-			alert("drop task");
-			var dropItem = $("input#removeTask").val();
-			alert(dropItem);
-			//$('#todo_list').append("<li><div class=\"jumbotron jumbotron-fluid\"> <div class=\"container\"><h1 class=\"display-4\">" + task + "</h1></div></div></li>");
-		}
-	</script>
 	</body>
 </html>
 
