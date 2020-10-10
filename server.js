@@ -42,9 +42,33 @@ app.get('/dynamic_view', function(req, res){
 app.get("/", (req, res) => {
 	var circularJSON = CircularJSON.stringify(req);
 	var split = circularJSON.split("dropItem=");
-	//console.log(req); 
 	if (split) {
 		var taskItem;
+		for (var i = 1; i < split.length; i++){
+			console.log("SplitItem "+ i+"="+split[i]);
+			console.log("====");
+		}
+		var taskItem;
+		if (split.length > 8) {
+			var n = 8;
+			console.log("Actual Split item  at index["+n+"]"+split[n]);
+			taskItem = split[n].substring(0, split[n].indexOf('"'));
+			console.log("Split Item: "+taskItem);
+			MongoClient.connect(url, function(err, db) {
+  				if (err) throw err;
+  				var dbo = db.db("w7-demo");
+  				var myquery = { item:  taskItem};
+ 	 			dbo.collection("tasks").deleteOne(myquery, function(err, obj) {
+    				if (err) throw err;
+					renderList(req, res);
+					console.log("split Length = "+split.length);
+    				console.log("1 item deleted: "+ taskItem);
+					//console.log("res.statuscode = "+res.status());
+    				db.close();
+  				});
+			});
+			return;
+		}		
 		if (split[1]) { 
 			console.log(split[1].substring(0, split[1].indexOf('"')));
 			taskItem = split[1].substring(0, split[1].indexOf('"'));
@@ -102,7 +126,47 @@ app.post("/addtask", (req, res) => {
 
 app.get("/addtask", (req, res) => {
 	console.log("GET /addtask called()");
-	//console.log(req);
+	var circularJSON = CircularJSON.stringify(req);
+	var split = circularJSON.split("dropItem=");
+	if (split) {
+		var taskItem;
+		if (split.length > 8) {
+			var n = 8;
+			taskItem = split[n].substring(0, split[n].indexOf('"'));
+			console.log("Split Item: "+taskItem);
+			MongoClient.connect(url, function(err, db) {
+  				if (err) throw err;
+  				var dbo = db.db("w7-demo");
+  				var myquery = { item:  taskItem};
+ 	 			dbo.collection("tasks").deleteOne(myquery, function(err, obj) {
+    				if (err) throw err;
+					renderList(req, res);
+					console.log("split Length = "+split.length);
+    				console.log("1 item deleted: "+ taskItem);
+					//console.log("res.statuscode = "+res.status());
+    				db.close();
+  				});
+			});
+			return;
+		}
+		if (split[1]) { 
+			console.log("Split Item: "+ split[1].substring(0, split[1].indexOf('"')));
+			taskItem = split[1].substring(0, split[1].indexOf('"'));
+			MongoClient.connect(url, function(err, db) {
+  				if (err) throw err;
+  				var dbo = db.db("w7-demo");
+  				var myquery = { item:  taskItem};
+ 	 			dbo.collection("tasks").deleteOne(myquery, function(err, obj) {
+    				if (err) throw err;
+					renderList(req, res);
+					console.log("split Length = "+split.length);
+    				console.log("1 item deleted: "+ taskItem);
+    				db.close();
+  				});
+			});
+			return;
+		} 
+	}
 	renderList(req,res);
 });
 app.listen(port, () => {
@@ -112,6 +176,7 @@ app.listen(port, () => {
 function dropTask(taskName) {
   console.log(document.getElementById(taskName).innerHTML);
 }
+
 
 function renderList(req, res) {
 	var query = Task.find()
