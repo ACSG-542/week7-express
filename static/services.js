@@ -7,7 +7,6 @@ $('#todo-form').submit(function () {
 });
 
 $(document).on('click', 'button.delete', function (event) {
-    //var id = event.target.id;
     var id = $(this).attr("id")
     $.ajax({
         url: "item" + id,
@@ -15,12 +14,6 @@ $(document).on('click', 'button.delete', function (event) {
     });
 	console.log("delete item with _id = "+id);
 })
-
-function getHelp() {
-	console.log("help, services.js line 20");
-}
-
-getHelp();
 
 function getAllItems() {
     $.getJSON({
