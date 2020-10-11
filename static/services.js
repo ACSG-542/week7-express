@@ -12,7 +12,6 @@ $(document).on('click', 'button.delete', function (event) {
         url: "item" + id,
         type: 'DELETE'
     });
-	console.log("delete item with _id = "+id);
 })
 
 function getAllItems() {
