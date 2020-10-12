@@ -6,30 +6,38 @@ $('#todo-form').submit(function () {
     })
 });
 
+var getUrl ="/delete/";
 $(document).on('click', 'button.delete', function (event) {
     var id = $(this).attr("id")
-    $.ajax({
-        url: "item" + id,
-        type: 'DELETE'
-    });
+    var tid = $()
+    //$.ajax({
+    //    url: "/" + id,
+    //    type: 'DELETE'
+    //});
+	getUrl = "/delete/" + id;
+	getAllItems();
 })
 
-function getAllItems() {
-    $.getJSON({
-        url: '/list',
-        success: function (data){
-            console.log(data)
-            var list = [];
-            $.each(data.docs, function (i, item) {
-                console.log(item.item);
-                list.push( "<li>" + item.item + "<button type='button' class='btn btn-danger btn-sm delete' id='"+item._id+"'>x</button></li>" );
-            })
 
-            $( "<ul/>", {
-                html: list.join( "" )
-            }).appendTo( "placeholder" );
-        }
+
+
+function getAllItems() {
+	$.getJSON({
+		url: getUrl,
+        success: function (data){
+			console.log(data);
+			var delItem = getUrl.substring(8, getUrl.length);
+            console.log(delItem);
+			var list = [];
+			$( "li" ).each(function( index ) {
+				if (!$( this ).text().includes(delItem)) {
+					 list.push($( this ).text());
+				} else {
+					$( this ).replaceWith("");
+				}
+			});		
+        },
     });
 }
 
-getAllItems();
+
