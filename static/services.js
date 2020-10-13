@@ -6,34 +6,34 @@ $('#todo-form').submit(function () {
     })
 });
 
-var getUrl ="/delete/";
+var getUrl ="/";
+
 $(document).on('click', 'button.delete', function (event) {
-    var id = $(this).attr("id")
-    var tid = $()
-    //$.ajax({
-    //    url: "/" + id,
-    //    type: 'DELETE'
-    //});
+	var id =event.target.id;
+    $.ajax({
+        url: "/" + id,
+        type: 'DELETE',
+		dataType: 'json'
+    });
 	getUrl = "/delete/" + id;
 	getAllItems();
 })
-
-
-
 
 function getAllItems() {
 	$.getJSON({
 		url: getUrl,
         success: function (data){
-			console.log(data);
 			var delItem = getUrl.substring(8, getUrl.length);
-            console.log(delItem);
+			var remItem = data.message;
 			var list = [];
+			var thisLi = "";
 			$( "li" ).each(function( index ) {
-				if (!$( this ).text().includes(delItem)) {
-					 list.push($( this ).text());
-				} else {
+				thisLi = $( this ).text();
+				var thisItem = thisLi.substring(0, thisLi.length -2);	
+				if (thisItem == delItem) {
 					$( this ).replaceWith("");
+				} else {
+					 list.push($( this ).text());
 				}
 			});		
         },
