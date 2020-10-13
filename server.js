@@ -21,6 +21,8 @@ var taskSchema = new mongoose.Schema({
 });
 var Task = mongoose.model("Task", taskSchema);
 
+
+
 var CircularJSON = require('circular-json');
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
@@ -35,6 +37,23 @@ app.get("/", (req, res) => {
 	renderList(req, res);
 });
 
+app.delete('/*', function (req, res){
+	var circularJSON = CircularJSON.stringify(req);
+	var split = circularJSON.split("pathname");
+	var thisItem = split[1].substring(4, split[1].length);
+	thisItem = thisItem.substring(0, thisItem.indexOf('"'));
+
+	var delItem = split[1].substring(1, split[1].indexOf('"'));
+	MongoClient.connect('mongodb://localhost:27017/w7-demo', function(err, client){
+        if(err) throw err;
+        let dbo = client.db('w7-demo');
+	    dbo.collection('tasks').deleteOne({item: thisItem}, function(err, obj) {
+            if(err) throw err;
+            dbo.close();
+        });
+    });
+	res.json({item: thisItem});
+})
 
 app.get("/delete/*", (req, res) => {
     var circularJSON = CircularJSON.stringify(req);
@@ -46,7 +65,6 @@ app.get("/delete/*", (req, res) => {
 		let dbo = client.db('w7-demo');
    		dbo.collection('tasks').deleteOne({item: delItem}, function(err, obj) {
 			if(err) throw err;
-			console.log("Delete Items_List: ");
 			dbo.close();
 		});
 	});
@@ -54,30 +72,6 @@ app.get("/delete/*", (req, res) => {
 	res.send({"message":delItem});
 	return;
 });
-
-
-function getList(res) {
-            var query = Task.find()
-            var list = "";
-            query.exec(function (err, docs) {
-                    console.log("docs: "+ JSON.stringify(docs));
-                    var splitColon = JSON.stringify(docs).split('"item":');
-                    var tasks = [];
-                    for (var i = 1; i < splitColon.length; i++) {
-                        var itemIndex = splitColon[i].length - 10;
-                        var itemTemp = splitColon[i].substring(0, itemIndex);
-                        var itemCut = itemTemp.substring(itemTemp.indexOf(',,') + 2, itemTemp.length);
-                        var task = itemCut.substring(0, itemCut.indexOf('"'));
-						list += task;
-                        tasks.push(task);
-                    }
-                    var complete = tasks;
-					console.log("complete.length = " + complete.length +", complete: "+complete);
-                    //res.send(complete);
-					res.render("index.ejs", { complete: complete});
-                    return;
-	});
-}
 
 app.post("/addtask", (req, res) => {
 	itemName = JSON.stringify(req.body);
@@ -106,26 +100,6 @@ app.listen(port, () => {
 });
 
 
-function renderResponse(res) {
-    var query = Task.find()
-    var list = "";
-    query.exec(function (err, docs) {
-        var splitColon = JSON.stringify(docs).split('"item":');
-        var tasks = [];
-        for (var i = 1; i < splitColon.length; i++) {
-            var itemIndex = splitColon[i].length - 10;
-            var itemTemp = splitColon[i].substring(0, itemIndex);
-            var itemCut = itemTemp.substring(itemTemp.indexOf(',,') + 2, itemTemp.length);
-            var task = itemCut.substring(0, itemCut.indexOf('"'));
-            tasks.push(task);
-
-            list += "<li>" + task + "<button type='button' class='btn btn-danger btn-sm delete' id='"+task+"'>x</button></li>";
-        }
-        var complete = tasks;
-        res.render("index.ejs", { complete: complete });
-    })
-}
-
 function renderList(req, res) {
 	var query = Task.find()
 	var list = "";
@@ -138,7 +112,6 @@ function renderList(req, res) {
 			var itemCut = itemTemp.substring(itemTemp.indexOf(',,') + 2, itemTemp.length);
 			var task = itemCut.substring(0, itemCut.indexOf('"'));
 			tasks.push(task);
-
 			list += "<li>" + task + "<button type='button' class='btn btn-danger btn-sm delete' id='"+task+"'>x</button></li>";
 		}
 		var complete = tasks;
@@ -158,7 +131,6 @@ function dropTask(req, res) {
 				if (err) throw err;
 				var dbo = db.db("w7-demo");
 				var myquery = { item:  taskItem};
-				console.log(taskItem);
 				dbo.collection("tasks").deleteOne(myquery, function(err, obj) {
 					if (err) throw err;
 					renderList(req, res);
@@ -173,7 +145,6 @@ function dropTask(req, res) {
 				if (err) throw err;
 				var dbo = db.db("w7-demo");
 				var myquery = { item:  taskItem};
-				console.log(taskItem);
 				dbo.collection("tasks").deleteOne(myquery, function(err, obj) {
 					if (err) throw err;
 					renderList(req, res);
@@ -184,3 +155,4 @@ function dropTask(req, res) {
 		}
 	}
 }
+
